@@ -42,22 +42,36 @@ const connectWithRetry = async (retries = 3, delay = 1000) => {
   }
 };
 
-export async function GET() {
+export async function GET(req) {
   try {
     await connectWithRetry(3);
     const products = await fetchCollectionWithRetry("oil", 3);
 
+    // Set CORS headers
+    const headers = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "http://localhost:3000", // Allow requests from your frontend
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS", // Allowed HTTP methods
+      "Access-Control-Allow-Headers": "Content-Type, Authorization", // Allowed headers
+    };
+
     return new Response(JSON.stringify(products), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
   } catch (error) {
     console.error("Error fetching products:", error);
+
+    const headers = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "http://localhost:3000", // Allow requests from your frontend
+    };
+
     return new Response(
       JSON.stringify({ error: "Failed to fetch products" }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers,
       }
     );
   }
