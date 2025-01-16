@@ -1,6 +1,14 @@
 import mongoose from "mongoose";
+import cors from "cors"; // Import cors
 
 let isConnected = false; // Track the connection status
+
+// Enable CORS with options
+const corsOptions = {
+  origin: "http://localhost:3000", // Allow requests from your frontend origin
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
+  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+};
 
 const fetchCollectionWithRetry = async (collectionName, retries = 3, delay = 1000) => {
   try {
@@ -42,8 +50,12 @@ const connectWithRetry = async (retries = 3, delay = 1000) => {
   }
 };
 
+// Use cors middleware in your API route
 export async function GET() {
   try {
+    // Enable CORS for this route
+    cors(corsOptions);
+
     await connectWithRetry(3);
     const products = await fetchCollectionWithRetry("pickles", 3);
 
