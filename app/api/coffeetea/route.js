@@ -1,24 +1,4 @@
 import mongoose from "mongoose";
-import Cors from 'cors';
-
-// Initialize the CORS middleware
-const cors = Cors({
-  methods: ['GET', 'POST'],  // Allow GET and POST requests
-  origin: true,  // Allow requests from any origin
-});
-
-// Helper function to run middleware
-const runCors = (req, res) => {
-  return new Promise((resolve, reject) => {
-    cors(req, res, (result) => {
-      if (result instanceof Error) {
-        reject(result);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-};
 
 let isConnected = false; // Track the connection status
 
@@ -62,9 +42,8 @@ const connectWithRetry = async (retries = 3, delay = 1000) => {
   }
 };
 
-export async function GET(req, res) {
+export async function GET() {
   try {
-    await runCors(req, res);
     await connectWithRetry(3);
     const products = await fetchCollectionWithRetry("coffeetea", 3);
 
