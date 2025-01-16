@@ -1,14 +1,6 @@
 import mongoose from "mongoose";
-import cors from "cors"; // Import cors
 
 let isConnected = false; // Track the connection status
-
-// Enable CORS with options
-const corsOptions = {
-  origin: "http://localhost:3000", // Allow requests from your frontend origin
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin"], // Allowed headers
-};
 
 const fetchCollectionWithRetry = async (collectionName, retries = 3, delay = 1000) => {
   try {
@@ -50,26 +42,36 @@ const connectWithRetry = async (retries = 3, delay = 1000) => {
   }
 };
 
-// Use cors middleware in your API route
-export async function GET() {
+export async function GET(req) {
   try {
-    // Enable CORS for this route
-    cors(corsOptions);
-
     await connectWithRetry(3);
     const products = await fetchCollectionWithRetry("pickles", 3);
 
+    // Set CORS headers
+    const headers = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "http://localhost:3000", // Allow requests from your frontend
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS", // Allowed HTTP methods
+      "Access-Control-Allow-Headers": "Content-Type, Authorization", // Allowed headers
+    };
+
     return new Response(JSON.stringify(products), {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers,
     });
   } catch (error) {
     console.error("Error fetching products:", error);
+
+    const headers = {
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "http://localhost:3000", // Allow requests from your frontend
+    };
+
     return new Response(
       JSON.stringify({ error: "Failed to fetch products" }),
       {
         status: 500,
-        headers: { "Content-Type": "application/json" },
+        headers,
       }
     );
   }
