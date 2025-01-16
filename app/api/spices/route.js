@@ -4,7 +4,7 @@ import Cors from 'cors';
 // Initialize the CORS middleware
 const cors = Cors({
   methods: ['GET', 'POST'],  // Allow GET and POST requests
-  origin: '*',  // Allow requests from any origin
+  origin: '*',  // Allow requests from any origin (can be more specific later for production)
 });
 
 // Helper function to run middleware
@@ -64,9 +64,14 @@ const connectWithRetry = async (retries = 3, delay = 1000) => {
 
 export async function GET(req, res) {
   try {
-    await runCors(req, res);
+    await runCors(req, res); // Apply CORS
     await connectWithRetry(3);
     const products = await fetchCollectionWithRetry("spices", 3);
+
+    // Set CORS headers manually (this is necessary for serverless functions)
+    res.setHeader("Access-Control-Allow-Origin", "*");  // Or specific origin like 'http://localhost:3000'
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
     return new Response(JSON.stringify(products), {
       status: 200,
@@ -74,6 +79,11 @@ export async function GET(req, res) {
     });
   } catch (error) {
     console.error("Error fetching products:", error);
+
+    // Handle CORS in case of errors too
+    res.setHeader("Access-Control-Allow-Origin", "*");  // Or specify origin
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+
     return new Response(
       JSON.stringify({ error: "Failed to fetch products" }),
       {
