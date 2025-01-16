@@ -7,7 +7,7 @@ let isConnected = false; // Track the connection status
 const corsOptions = {
   origin: "http://localhost:3000", // Allow requests from your frontend origin
   methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
-  allowedHeaders: ["Content-Type", "Authorization"], // Allowed headers
+  allowedHeaders: ["Content-Type", "Authorization", "Access-Control-Allow-Origin"], // Allowed headers
 };
 
 const fetchCollectionWithRetry = async (collectionName, retries = 3, delay = 1000) => {
